@@ -37,4 +37,19 @@ class IntroController extends Controller
             ]);
         }
     }
+
+    // Exercice 3 convert numbers in string to binary
+    function numbersToBinary(Request $req)
+    {
+        try {
+            return response()->json([
+                "Success" => true
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                "Success" => false,
+                "Error" => "$e"
+            ]);
+        }
+    }
 }
