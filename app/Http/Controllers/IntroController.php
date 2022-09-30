@@ -28,7 +28,7 @@ class IntroController extends Controller
                         if ($key === 0) {
                             break;
                         }
-                        
+
                         $split = array_chunk($array, $key);
                         $count++;
                         break;
@@ -53,9 +53,7 @@ class IntroController extends Controller
                     "Success" => true,
                     "Result" => $result
                 ]);
-
             } else {
-
                 return response()->json([
                     "Success" => false,
                     "Error" => "Contains special characters."
@@ -74,9 +72,36 @@ class IntroController extends Controller
     function numberDeconstruct(Request $req)
     {
         try {
-            return response()->json([
-                "Success" => true
-            ]);
+
+            $num = $req->json()->all()['num'];
+            $result = [];
+
+            if (preg_match("/^-?[0-9]+$/", $num)) {
+
+                $num = str_split($num);
+
+                if ($num[0] === '-') {
+                    $counter = 0;
+                    foreach (array_keys($num) as $key) {
+                        if ($counter++ == 0) continue;
+                        $result[] = -$num[$key] * 10 ** (count($num) - $key - 1);
+                    }
+                } else {
+                    foreach (array_keys($num) as $key) {
+                        $result[] = $num[$key] * 10 ** (count($num) - $key - 1);
+                    }
+                }
+
+                return response()->json([
+                    "Success" => true,
+                    "Result" => $result
+                ]);
+            } else {
+                return response()->json([
+                    "Success" => false,
+                    "Error" => "Contains letters characters."
+                ]);
+            }
         } catch (Exception $e) {
             return response()->json([
                 "Success" => false,
