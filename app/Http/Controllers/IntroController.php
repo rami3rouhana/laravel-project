@@ -114,9 +114,35 @@ class IntroController extends Controller
     function numbersToBinary(Request $req)
     {
         try {
-            return response()->json([
-                "Success" => true
-            ]);
+            $translate = $req->json()->all()['translate'];
+
+            if (!preg_match("/^-?[0-9]+$/", $translate)) {
+
+                preg_match_all('!\d+!', $translate, $matches);
+                $strings = [];
+
+
+                $strings[] = preg_split('!\d+!', $translate);
+
+                $result = '';
+
+                foreach (array_keys($strings[0]) as $res) {
+                    $result = $result . $strings[0][$res];
+                    if (isset($matches[0][$res]))
+                        $result = $result . decbin($matches[0][$res]);
+                }
+
+
+                return response()->json([
+                    "Success" => true,
+                    "Result" => $result
+                ]);
+            } else {
+                return response()->json([
+                    "Success" => true,
+                    "Result" => $translate
+                ]);
+            }
         } catch (Exception $e) {
             return response()->json([
                 "Success" => false,
@@ -129,13 +155,42 @@ class IntroController extends Controller
     function calcuate(Request $req)
     {
         try {
-            return response()->json([
-                "Success" => true
-            ]);
+            $calcuation = $req->json()->all()['calcuation'];
+            $calcuation = explode(" ", $calcuation);
+            $calcuation = array_reverse($calcuation);
+            $calcuation_array = [];
+            foreach ($calcuation as $cal) {
+                if (preg_match("/^-?[0-9]+$/", $cal)) {
+                    $calcuation_array[] = $cal;
+                } else if ($cal === "-") {
+                    $calcuation_array[count($calcuation_array) - 2] = $calcuation_array[count($calcuation_array) - 1] - $calcuation_array[count($calcuation_array) - 2];
+                    array_pop($calcuation_array);
+                } else if ($cal === "*") {
+                    $calcuation_array[count($calcuation_array) - 2] = $calcuation_array[count($calcuation_array) - 1] * $calcuation_array[count($calcuation_array) - 2];
+                    array_pop($calcuation_array);
+                } else if ($cal === "/") {
+                    $calcuation_array[count($calcuation_array) - 2] = $calcuation_array[count($calcuation_array) - 1] / $calcuation_array[count($calcuation_array) - 2];
+                    array_pop($calcuation_array);
+                } else if ($cal === "+") {
+                    $calcuation_array[count($calcuation_array) - 2] = $calcuation_array[count($calcuation_array) - 1] + $calcuation_array[count($calcuation_array) - 2];
+                    array_pop($calcuation_array);
+                }
+            }
+            if (count($calcuation_array) === 1) {
+                return response()->json([
+                    "Success" => true,
+                    "Result" => $calcuation_array[0]
+                ]);
+            } else {
+                return response()->json([
+                    "Success" => false,
+                    "Error" => "This is not a prefix notation"
+                ]);
+            }
         } catch (Exception $e) {
             return response()->json([
                 "Success" => false,
-                "Error" => "$e"
+                "Error" => "This is not a prefix notation"
             ]);
         }
     }

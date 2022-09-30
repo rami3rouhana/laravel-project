@@ -10,4 +10,3 @@ Route::prefix('v1')->group(function () {
     Route::post('/numbers_to_binary', [IntroController::class, 'numbersToBinary']);
     Route::post('/calcuate', [IntroController::class, 'calcuate']);
 });
-
